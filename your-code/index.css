@@ -27,3 +27,7 @@
 .tree-entry__disclosure--opened::before {
   content: "\25BC";
 }
+
+.tree {
+  list-style: none;
+}

@@ -2,7 +2,13 @@ let treeContainer;
 window.addEventListener("DOMContentLoaded", (event) => {
   treeContainer = document.querySelector(".tree-container");
   fetch("http://localhost:3001/api/path/")
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) {
+        throw res;
+      } else {
+        return res.json();
+      }
+    })
     .then((res) => {
       const rootNode = new DirectoryTreeNode("root", "directory", "2020-10-09");
       res.forEach((file) => {
@@ -12,16 +18,22 @@ window.addEventListener("DOMContentLoaded", (event) => {
       updateVisualTree(treeContainer, rootNode);
       document.querySelector(".loading-overlay").style.display = "none";
       console.log(rootNode);
-      document.querySelectorAll(".tree-entry__disclosure").forEach(folder => folder.addEventListener("click", e => {
-        if(e.target.className.includes("closed")){
-          folder.classList.add("tree-entry__disclosure--opened");
-          folder.classList.remove("tree-entry__disclosure--closed");
-        }
-        else if(e.target.className.includes("open")){
-          folder.classList.remove("tree-entry__disclosure--opened");
-          folder.classList.add("tree-entry__disclosure--closed");
-        }
-      }));
+      document.querySelectorAll(".tree-entry__disclosure").forEach((folder) =>
+        folder.addEventListener("click", (e) => {
+          if (e.target.className.includes("closed")) {
+            folder.classList.add("tree-entry__disclosure--opened");
+            folder.classList.remove("tree-entry__disclosure--closed");
+          } else if (e.target.className.includes("open")) {
+            folder.classList.remove("tree-entry__disclosure--opened");
+            folder.classList.add("tree-entry__disclosure--closed");
+          }
+        })
+      );
+    })
+    .catch((e) => {
+      const overlay = document.querySelector(".loading-overlay");
+      overlay.style.backgroundColor = "rgba(255, 0, 0, 0.6)";
+      overlay.innerText = "Error";
     });
 });
 
@@ -45,12 +57,12 @@ function updateVisualTreeEntry(treeElement, child) {
 
   // Create a list element with a file icon
   if (child.type === "file") {
-    li.innerHTML =
-      '<div class="tree-entry__disclosure tree-entry__disclosure--disabled>\25B6</div>' +
-      `<img class="tree-entry__icon" src="/icons/file_type_${child.getIconTypeName()}.svg">
-        <div class="tree-entry__name">${child.name}</div>
-        <div class="tree-entry__time">${child.lastModifiedTime}</div>
-      `;
+    li.innerHTML = `
+      <div class="tree-entry__disclosure tree-entry__disclosure--disabled"></div>
+      <img class="tree-entry__icon" src="/icons/file_type_${child.getIconTypeName()}.svg">
+      <div class="tree-entry__name">${child.name}</div>
+      <div class="tree-entry__time">${child.lastModifiedTime}</div>
+    `;
 
     // Or create a list element with a folder icon
   } else if (child.type === "directory") {
