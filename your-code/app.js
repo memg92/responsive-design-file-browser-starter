@@ -12,9 +12,17 @@ window.addEventListener("DOMContentLoaded", (event) => {
       updateVisualTree(treeContainer, rootNode);
       document.querySelector(".loading-overlay").style.display = "none";
       console.log(rootNode);
+      document.querySelectorAll(".tree-entry__disclosure").forEach(folder => folder.addEventListener("click", e => {
+        if(e.target.className.includes("closed")){
+          folder.classList.add("tree-entry__disclosure--opened");
+          folder.classList.remove("tree-entry__disclosure--closed");
+        }
+        else if(e.target.className.includes("open")){
+          folder.classList.remove("tree-entry__disclosure--opened");
+          folder.classList.add("tree-entry__disclosure--closed");
+        }
+      }));
     });
-
-  document.querySelectorAll(".tree-entry__disclosure");
 });
 
 function updateVisualTree(element, directoryTreeNode) {

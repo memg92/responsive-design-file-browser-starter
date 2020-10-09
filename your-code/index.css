@@ -24,3 +24,6 @@
 .tree-entry__disclosure--closed::before {
   content: "\25b6";
 }
+.tree-entry__disclosure--opened::before {
+  content: "\25BC";
+}
