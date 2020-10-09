@@ -1,0 +1,13 @@
+.loading-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+}
