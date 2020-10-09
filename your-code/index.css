@@ -11,3 +11,16 @@
   color: white;
   font-size: 20px;
 }
+
+.tree-entry__icon {
+  max-height: 30px;
+  max-width: 30px;
+}
+
+.tree-entry * {
+  display: inline-block;
+}
+
+.tree-entry__disclosure--closed::before {
+  content: "\25b6";
+}
