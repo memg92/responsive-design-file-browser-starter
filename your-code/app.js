@@ -10,19 +10,31 @@ window.addEventListener("DOMContentLoaded", (event) => {
       }
     })
     .then((res) => {
-      const rootNode = new DirectoryTreeNode("root", "directory", "2020-10-09");
+      const rootNode = new DirectoryTreeNode("/", "directory", "2020-10-09");
       res.forEach((file) => {
         let { name, type, lastModifiedTime } = file;
         rootNode.addChild(new DirectoryTreeNode(name, type, lastModifiedTime));
       });
+      treeContainer.dataset.pathName = "/";
       updateVisualTree(treeContainer, rootNode);
+
       document.querySelector(".loading-overlay").style.display = "none";
       console.log(rootNode);
       document.querySelectorAll(".tree-entry__disclosure").forEach((folder) =>
         folder.addEventListener("click", (e) => {
+          console.log(e.target.parentNode.children);
           if (e.target.className.includes("closed")) {
             folder.classList.add("tree-entry__disclosure--opened");
             folder.classList.remove("tree-entry__disclosure--closed");
+            fetch(`http://localhost:3001/api/path${e.target.parentNode.dataset.pathName}`)
+            .then(res => res.json())
+            .then(res => {
+              res.forEach((file) => {
+                let { name, type, lastModifiedTime } = file;
+                rootNode[e.target.parentNode.children[2].innerText].addChild(new DirectoryTreeNode(name, type, lastModifiedTime));
+              });
+              console.log(res)
+            });
           } else if (e.target.className.includes("open")) {
             folder.classList.remove("tree-entry__disclosure--opened");
             folder.classList.add("tree-entry__disclosure--closed");
@@ -30,17 +42,18 @@ window.addEventListener("DOMContentLoaded", (event) => {
         })
       );
     })
-    .catch((e) => {
-      const overlay = document.querySelector(".loading-overlay");
-      overlay.style.backgroundColor = "rgba(255, 0, 0, 0.6)";
-      overlay.innerText = "Error";
-    });
+    // .catch((e) => {
+    //   const overlay = document.querySelector(".loading-overlay");
+    //   overlay.style.backgroundColor = "rgba(255, 0, 0, 0.6)";
+    //   overlay.innerText = "Error";
+    // });
 });
 
 function updateVisualTree(element, directoryTreeNode) {
   // Create an unordered list to make a UI for the directoryTreeNode
   const ul = document.createElement("ul");
   ul.classList.add("tree");
+  ul.dataset.pathName = "/";
 
   // Create a list element for every child of the directoryTreeNode
   for (let child of directoryTreeNode.children) {
@@ -75,6 +88,8 @@ function updateVisualTreeEntry(treeElement, child) {
   }
 
   // Add the newly created list element into the unordered list
+  debugger
+  li.dataset.pathName = treeElement.getAttribute("data-path-name")+ child.name;
   treeElement.appendChild(li);
 }
 
@@ -83,10 +98,10 @@ class DirectoryTreeNode {
     this.name = name;
     this.type = type;
     this.lastModifiedTime = lastModifiedTime;
-    this.children = [];
+    this.children = {};
   }
   addChild(child) {
-    this.children.push(child);
+    this.children[child.name] = child;
   }
   getIconTypeName() {
     if (this.type === "directory") {
